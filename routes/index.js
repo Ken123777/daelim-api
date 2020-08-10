@@ -5,7 +5,9 @@ var Problem = require("../models/Problem");
 var vm = require("vm");
 
 // RESTful
-router.post("/problems/:problem_id", async function (req, res, next) {
+router.options("/problems/:problem_id", cors());
+
+router.post("/problems/:problem_id", cors(), async function (req, res, next) {
   /*
     1. 클라이언트가 전달해준 사용자의 문제 풀이 내용 -> 실행
     2. 실행한 결과 === 해당 문제의 정답과 일치하는지 비교
@@ -21,11 +23,20 @@ router.post("/problems/:problem_id", async function (req, res, next) {
     let isCorrect = true;
 
     for (let i = 0; i < problem.tests.length; i++) {
-      const script = new vm.Script(code + problem.tests[i].code);
-      const result = script.runInNewContext();
+      try {
+        const script = new vm.Script(code + problem.tests[i].code);
+        const result = script.runInNewContext();
 
-      if (`${result}` !== problem.tests[i].solution) {
-        isCorrect = false;
+        if (`${result}` !== problem.tests[i].solution) {
+          isCorrect = false;
+        }
+      } catch (err) {
+        res.json({
+          result: "에러",
+          detail: err.message
+        });
+
+        return;
       }
     }
 
