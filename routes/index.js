@@ -4,6 +4,12 @@ var cors = require("cors");
 var Problem = require("../models/Problem");
 var vm = require("vm");
 
+router.get("/", cors(), function (req, res, next) {
+  res.json({
+    message: "준명님, 유리님 다 됐나요?"
+  });
+});
+
 // RESTful
 router.options("/problems/:problem_id", cors());
 
